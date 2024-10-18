@@ -1,22 +1,20 @@
-import swal from 'sweetalert2';
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { LibeyUserService } from 'src/app/core/service/libeyuser/libeyuser.service';
 import { DocumentType1 } from 'src/app/entities/DocumentType1';
-import { Region } from 'src/app/entities/Region';
-import { Province } from 'src/app/entities/Province';
-import { Ubigeo } from 'src/app/entities/Ubigeo';
 import { LibeyUser } from 'src/app/entities/libeyuser';
-import { Router } from '@angular/router';
-
+import { Province } from 'src/app/entities/Province';
+import { Region } from 'src/app/entities/Region';
+import { Ubigeo } from 'src/app/entities/Ubigeo';
+import swal from 'sweetalert2';
 
 @Component({
-  selector: 'app-usermaintenance',
-  templateUrl: './usermaintenance.component.html',
-  styleUrls: ['./usermaintenance.component.css']
+  selector: 'app-modal-update-user',
+  templateUrl: './modal-update-user.component.html',
+  styleUrls: ['./modal-update-user.component.css']
 })
-export class UsermaintenanceComponent implements OnInit {
-
+export class ModalUpdateUserComponent implements OnInit {
 
   UserForm: FormGroup = new FormGroup({});
   submitted: boolean = false;
@@ -27,16 +25,33 @@ export class UsermaintenanceComponent implements OnInit {
   ubigeos :Ubigeo[] = [];
 
   constructor(
-    private formBuilder: FormBuilder,
     private libeyUserService : LibeyUserService,
-    public router: Router
-    )
-   { }
+    public router: Router,
+    private formBuilder: FormBuilder
+  ) { }
+
   ngOnInit(): void {
 
     this.initializeForm();
     this.getAllDocumentTypes();
     this.getAllRegions();
+  }
+
+
+  @Input() user?: LibeyUser | undefined;
+  @Output() users = new EventEmitter<LibeyUser[]>();
+  isOpen = false;
+
+  openModal() {
+    this.isOpen = true;
+  }
+
+  closeModal() {
+    this.isOpen = false;
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    this.reciepUser();
   }
 
   initializeForm(){
@@ -57,6 +72,8 @@ export class UsermaintenanceComponent implements OnInit {
     })
   }
 
+
+
   getAllDocumentTypes(){
 
     this.libeyUserService.getAllDocumentTypes().subscribe({
@@ -73,7 +90,9 @@ export class UsermaintenanceComponent implements OnInit {
 
     this.libeyUserService.getAllRegions().subscribe({
       next: (regions) => {
+
         this.regions = regions
+
       },
       error: (error) => {
         console.error(error);
@@ -81,11 +100,19 @@ export class UsermaintenanceComponent implements OnInit {
     })
   }
 
-  getProvincesByCode(code: string){
+
+
+
+
+
+  getProvincesByCode(code: string|undefined){
+
 
     this.libeyUserService.getProvincesByCode(code).subscribe({
       next: (provinces) => {
+
         this.provinces = provinces
+
       },
       error: (error) => {
         console.error(error);
@@ -94,12 +121,14 @@ export class UsermaintenanceComponent implements OnInit {
   }
 
 
-  getUbigeosByCode(provinceCode : string){
+  getUbigeosByCode(provinceCode : string | undefined){
 
       let regionCode = this.UserForm.get('Region')?.value;
       this.libeyUserService.getUbigeosByCode(regionCode,provinceCode).subscribe({
         next: (ubigeos) => {
+
           this.ubigeos = ubigeos
+
         },
         error: (error) => {
           console.error(error);
@@ -116,7 +145,7 @@ export class UsermaintenanceComponent implements OnInit {
 
     swal.fire({
       title: "Confirmación",
-      text: `¿Deseas registrar al usuario?`,
+      text: `¿Deseas editar al usuario?`,
       imageUrl: "assets/images/logos/fuse.png",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
@@ -148,17 +177,19 @@ export class UsermaintenanceComponent implements OnInit {
       }
 
 
-      this.libeyUserService.createClient(request).subscribe({
+      this.libeyUserService.editUser(request).subscribe({
         next: (resp) => {
 
           console.log(resp);
           if(resp > 0){
-              swal.fire("Especialidades Médicas", "¡Se registró al cliente!","success");
+              swal.fire("Especialidades Médicas", "¡Se actualizó el registro!","success");
+              this.getAllUsers();
               this.cleanForm();
+              this.isOpen = false;
           }
           else
           {
-              swal.fire("Especialidades Médicas", "Ocurrió un error, favor comuníquese con el área de sistemas", "warning").then(() => {
+              swal.fire("Especialidades Médicas", "Ocurrió un error, favor comuniquese con el área de sistemas", "warning").then(() => {
                   }
               );
           }
@@ -182,6 +213,49 @@ export class UsermaintenanceComponent implements OnInit {
   }
 
   return(){
-    this.router.navigate(['/user/card']);
+
+    this.closeModal();
   }
+
+
+
+  reciepUser(){
+    console.log(this.user);
+
+    this.UserForm.patchValue({
+        DocumentNumber: this.user?.documentNumber,
+        FullName: this.user?.name,
+        FatherLastName: this.user?.fathersLastName,
+        MotherLastName: this.user?.mothersLastName,
+        Address: this.user?.address,
+        Phone: this.user?.phone,
+        Email: this.user?.email,
+        Password: this.user?.password,
+
+    });
+    this.UserForm.get('DocumentType')?.setValue(this.user?.documentTypeId);
+    this.UserForm.get('Region')?.setValue(this.user?.regionCode);
+    this.getProvincesByCode(this.user?.regionCode);
+    this.UserForm.get('Province')?.setValue(this.user?.provinceCode)
+    this.getUbigeosByCode(this.user?.provinceCode,);
+    this.UserForm.get('Ubigeo')?.setValue(this.user?.ubigeoCode,)
+  }
+
+
+
+  getAllUsers(){
+
+    this.libeyUserService.getAllUsers().subscribe({
+      next: (users) => {
+        console.log(users);
+        this.users.emit(users);
+
+      },
+      error: (error) => {
+        console.error(error);
+      }
+    })
+
+  }
+
 }

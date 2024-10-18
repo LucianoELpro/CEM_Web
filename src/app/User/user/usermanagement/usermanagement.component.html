@@ -1,0 +1,39 @@
+<div class="container mt-5">
+  <h2 class="mb-4">User Management</h2>
+
+  <!-- Table for displaying users -->
+  <table class="table table-bordered table-striped">
+    <thead class="table-dark">
+      <tr>
+        <th>Document number</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Phone</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let user of users">
+        <td>{{ user.documentNumber }}</td>
+        <td>{{ user.name }}</td>
+        <td>{{ user.email }}</td>
+        <td>{{ user.phone }}</td>
+        <td>
+
+          <button (click)="OpenModal(user)" class="btn btn-warning btn-sm" style="margin-right: 10px;">Edit</button>
+
+          <button (click)="deleteUser(user.documentNumber)" class="btn btn-danger btn-sm">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+   <button (click)="addUser()" class="btn btn-primary">Add User</button>
+</div>
+
+
+<app-modal-update-user
+  [user]="user"
+  (users)="recibeUsersUpdated($event)"
+  ></app-modal-update-user>
+

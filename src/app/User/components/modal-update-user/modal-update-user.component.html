@@ -1,6 +1,24 @@
+<!-- <div class="modal" *ngIf="isOpen" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <span class="close" (click)="closeModal()">&times;</span>
+    <h2>{{ title }}</h2>
+    <p>{{ message }}</p>
+    <button (click)="confirm()">Confirm</button>
+    <button (click)="closeModal()">Cancel</button>
+  </div>
+</div> -->
+
+
+
+
+<div class="modal" *ngIf="isOpen" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <span class="close" (click)="closeModal()">&times;</span>
+
+
 <form [formGroup]="UserForm" style="padding-right: 5%; padding-left: 5%; ">
-	<div class="card" style="width: 100%;margin-top: 2rem;background-color:#edf2f6;border-radius: 10px; height: 70em; " >
-		<div class="card-header"><b>Mantenimiento de usuario crear</b></div>
+	<div class="card" style="width: 100%;margin-top: 2rem;background-color:#edf2f6;border-radius: 10px; height: 30em; " >
+		<div class="card-header"><b>Mantenimiento de usuario actualizar</b></div>
 		<div class="card mb-4 mt-4">
 			<ul class="nav">
 				<button type="button" class="btn-toolbar" (click)="Submit()">
@@ -118,5 +136,5 @@
 	</div>
 </form>
 
-
-
+</div>
+</div>

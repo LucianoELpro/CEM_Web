@@ -28,19 +28,35 @@ export class LibeyUserService {
 		return this.http.get<Region[]>(uri);
   }
 
-  getProvincesByCode(code :string): Observable<Province[]> {
+  getProvincesByCode(code :string |undefined): Observable<Province[]> {
 		const uri = `${environment.pathLibeyTechnicalTest}LibeyUser/GetProvincesByCode?regionCode=${code}`;
 		return this.http.get<Province[]>(uri);
   }
 
-  getUbigeosByCode(regioncode :string,provinceCode :string): Observable<Ubigeo[]> {
+  getUbigeosByCode(regioncode :string,provinceCode :string | undefined): Observable<Ubigeo[]> {
 		const uri = `${environment.pathLibeyTechnicalTest}LibeyUser/GetUbigeosByCode?provinceCode=${provinceCode}&regionCode=${regioncode}`;
 		return this.http.get<Ubigeo[]>(uri);
   }
 
   createClient(request : LibeyUser): Observable<number> {
-    debugger;
+
 		const uri = `${environment.pathLibeyTechnicalTest}LibeyUser/CreateClient`;
 		return this.http.post<number>(uri,request);
   }
+
+  getAllUsers(): Observable<LibeyUser[]> {
+		const uri = `${environment.pathLibeyTechnicalTest}LibeyUser/GetAllUsers`;
+		return this.http.get<LibeyUser[]>(uri);
+  }
+
+  editUser(request : LibeyUser): Observable<number> {
+		const uri = `${environment.pathLibeyTechnicalTest}LibeyUser/UpdateUser`;
+		return this.http.post<number>(uri,request);
+  }
+
+  deleteUser(varlor : string): Observable<number> {
+		const uri = `${environment.pathLibeyTechnicalTest}LibeyUser/DeleteUser?documentNumber=${varlor}`;
+		return this.http.post<number>(uri,varlor);
+  }
 }
+
